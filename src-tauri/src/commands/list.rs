@@ -9,10 +9,10 @@ pub async fn list_images(
 ) -> Result<serde_json::Value, String> {
     let request = client
         .client
-        .get(client.url("resources/image/upload"))
+        .get(client.url("resources/by_asset_folder"))
         .basic_auth(&client.api_key, Some(&client.api_secret))
         .query(&[
-            ("prefix", folder.as_str()),
+            ("asset_folder", folder.as_str()),
             ("metadata", "true"),
             ("max_results", "500"),
         ]);

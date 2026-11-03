@@ -19,13 +19,13 @@ pub async fn upload_image(
     let timestamp = timestamp().to_string();
     let metadata = format!("order={order}");
     let signature = generate_signature(
-        &format!("folder={folder}&metadata={metadata}&timestamp={timestamp}"),
+        &format!("asset_folder={folder}&metadata={metadata}&timestamp={timestamp}"),
         &client.api_secret,
     );
 
     let form = reqwest::multipart::Form::new()
         .part("file", reqwest::multipart::Part::bytes(bytes).file_name(file_name))
-        .text("folder", folder)
+        .text("asset_folder", folder)
         .text("metadata", metadata)
         .text("timestamp", timestamp)
         .text("api_key", client.api_key.clone())
