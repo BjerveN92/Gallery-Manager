@@ -18,6 +18,32 @@ impl CloudinaryClient {
             api_secret: read_env("CLOUDINARY_API_SECRET")?,
         })
     }
+
+    /// Full URL for an API path, e.g. `url("image/upload")`.
+    pub fn url(&self, path: &str) -> String {
+        format!("https://api.cloudinary.com/v1_1/{}/{path}", self.cloud_name)
+    }
+
+    /// Sends the request and returns the JSON body, turning HTTP errors into
+    /// `Err` with Cloudinary's own error message.
+    pub async fn send(&self, request: reqwest::RequestBuilder) -> Result<serde_json::Value, String> {
+        let response = request
+            .send()
+            .await
+            .map_err(|e| format!("request to Cloudinary failed: {e}"))?;
+
+        let status = response.status();
+        let body: serde_json::Value = response
+            .json()
+            .await
+            .map_err(|e| format!("invalid response from Cloudinary ({status}): {e}"))?;
+
+        if !status.is_success() {
+            let message = body["error"]["message"].as_str().unwrap_or("unknown error");
+            return Err(format!("Cloudinary returned {status}: {message}"));
+        }
+        Ok(body)
+    }
 }
 
 fn read_env(name: &str) -> Result<String, String> {

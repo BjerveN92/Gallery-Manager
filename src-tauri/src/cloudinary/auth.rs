@@ -1,15 +1,21 @@
-use sha1::{Digest, Sha1};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-fn generate_signature(params: &str, api_secret: &str) -> String {
-    let to_sign = format!("{}{}", params, api_secret);
-    let hash = Sha1::digest(to_sign.as_bytes());
-    hex::encode(hash)
+use sha1::{Digest, Sha1};
+
+/// Signs upload/destroy params: SHA1(params + api_secret), hex encoded.
+///
+/// `params` is the already-sorted `key=value&key=value` string.
+pub fn generate_signature(params: &str, api_secret: &str) -> String {
+    let mut hasher = Sha1::new();
+    hasher.update(params.as_bytes());
+    hasher.update(api_secret.as_bytes());
+    hex::encode(hasher.finalize())
 }
 
-fn timestamp() -> u64 {
+/// Current unix epoch time in seconds.
+pub fn timestamp() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap()
+        .expect("system clock is before the unix epoch")
         .as_secs()
 }
