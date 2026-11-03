@@ -1,8 +1,16 @@
+use tauri::State;
+
+use crate::cloudinary::client::CloudinaryClient;
+
 #[tauri::command]
-pub async fn update_order(public_id: String, order: u32) -> Result<serde_json::Value, String> {
-    let _ = (public_id, order);
+pub async fn update_order(
+    client: State<'_, CloudinaryClient>,
+    public_id: String,
+    order: u32,
+) -> Result<serde_json::Value, String> {
+    let _ = (&client, public_id, order);
     // TODO:
-    // - CloudinaryClient::new()?
+    // - use `client` (managed state)
     // - timestamp = auth::timestamp()
     // - signature = auth::generate_signature("metadata=order=..&public_id=..&timestamp=..", api_secret)
     // - POST to the Cloudinary metadata endpoint for this asset

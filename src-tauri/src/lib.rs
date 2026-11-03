@@ -1,3 +1,5 @@
+use tauri::Manager;
+
 mod cloudinary;
 mod commands;
 
@@ -8,6 +10,11 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            // Built once; fails startup with a clear message if .env is incomplete.
+            app.manage(cloudinary::client::CloudinaryClient::new()?);
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             commands::list::list_images,
             commands::upload::upload_image,

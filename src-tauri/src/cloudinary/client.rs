@@ -1,3 +1,5 @@
+use std::env;
+
 /// Shared handle for all Cloudinary API calls.
 pub struct CloudinaryClient {
     pub client: reqwest::Client,
@@ -9,10 +11,18 @@ pub struct CloudinaryClient {
 impl CloudinaryClient {
     /// Builds a client from the environment (loaded via dotenvy in `run()`).
     pub fn new() -> Result<Self, String> {
-        // TODO:
-        // - read CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
-        //   with std::env::var, mapping a missing var to a descriptive Err(String)
-        // - construct reqwest::Client::new()
-        todo!()
+        Ok(Self {
+            client: reqwest::Client::new(),
+            cloud_name: read_env("CLOUDINARY_CLOUD_NAME")?,
+            api_key: read_env("CLOUDINARY_API_KEY")?,
+            api_secret: read_env("CLOUDINARY_API_SECRET")?,
+        })
+    }
+}
+
+fn read_env(name: &str) -> Result<String, String> {
+    match env::var(name) {
+        Ok(v) if !v.trim().is_empty() => Ok(v),
+        _ => Err(format!("missing environment variable {name} (see .env.example)")),
     }
 }
