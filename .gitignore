@@ -12,3 +12,6 @@ vite.config.ts.timestamp-*
 # Rust / build output
 target/
 dist/
+
+# Personal notes
+PLAN.md
